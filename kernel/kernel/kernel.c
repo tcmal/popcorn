@@ -5,16 +5,11 @@
 #include <kernel/paging.h>
 #include <string.h>
 
-void kernel_main(void) {
+
+void kernel_main(uint32_t a) {
 	tty_init();
-	setupPaging();
 
-	// char buf[4];
-	// for (unsigned int i = 0; i < 50; i++) {
-	// 	int_to_str(i, buf, 4);
-	// 	tty_writeString(buf);
-	// 	tty_nextRow();
-	// }
-
+	tty_writeString("Hello, World!");
+	
 	while (true) {};
 }
