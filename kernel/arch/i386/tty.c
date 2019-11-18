@@ -24,6 +24,10 @@ uint16_t vga_entry(unsigned char uc, uint8_t color)
 int pow(int sub, int exp) {
 	int acc = 1;
 	for (int i = 0; i < exp; i++) {
+		// overflow
+		if (sub > 0xFFFFFFFF / acc) {
+			return -1;
+		}
 		acc = acc * sub;
 	}
 	return acc;

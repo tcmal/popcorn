@@ -15,6 +15,7 @@ void* memmove(void*, const void*, size_t);
 void* memset(void*, int, size_t);
 size_t strlen(const char*);
 void int_to_str(int num, char* str, size_t buflen);
+void int_to_str_unsigned(unsigned int num, char* str, size_t buflen);
 
 #ifdef __cplusplus
 }
