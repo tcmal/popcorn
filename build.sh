@@ -1,7 +1,9 @@
 #!/bin/sh
 set -e
-. ./headers.sh
+. ./config.sh
+
+TASK=${1:-install install-headers}
 
 for PROJECT in $PROJECTS; do
-  (cd $PROJECT && DESTDIR="$SYSROOT" $MAKE install)
+  (cd $PROJECT && DESTDIR="$SYSROOT" $MAKE $TASK)
 done

@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
+#include <limits.h>
 
 #include <kernel/tty.h>
 
@@ -25,7 +26,7 @@ int pow(int sub, int exp) {
 	int acc = 1;
 	for (int i = 0; i < exp; i++) {
 		// overflow
-		if (sub > 0xFFFFFFFF / acc) {
+		if (sub > INT_MAX / acc) {
 			return -1;
 		}
 		acc = acc * sub;

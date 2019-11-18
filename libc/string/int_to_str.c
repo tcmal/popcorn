@@ -12,8 +12,8 @@ void int_to_str(int num, char* str, size_t buflen) {
 		str[0] = '0';
 	}
 
-	int largestIndex = 0;
-	for (int exp = 0; exp < buflen - 1; exp++) {
+	size_t largestIndex = 0;
+	for (size_t exp = 0; exp < buflen - 1; exp++) {
 		int place = pow(10, exp);
 		if (place == -1) {
 			break;
@@ -29,7 +29,7 @@ void int_to_str(int num, char* str, size_t buflen) {
 
 	// reverse the parts we wrote
 	char temp;
-	for (int i = 0; i <= (largestIndex / 2); i++) {
+	for (size_t i = 0; i <= (largestIndex / 2); i++) {
 		temp = str[largestIndex - i];
 		str[largestIndex - i] = str[i];
 		str[i] = temp;
@@ -41,8 +41,8 @@ void int_to_str(int num, char* str, size_t buflen) {
 void int_to_str_unsigned(unsigned int num, char* str, size_t buflen) {
 	str[0] = '0';
 
-	int largestIndex = 0;
-	for (int exp = 0; exp < buflen - 1; exp++) {
+	size_t largestIndex = 0;
+	for (size_t exp = 0; exp < buflen - 1; exp++) {
 		int place = pow(10, exp);
 		if (place == -1) {
 			break;
@@ -59,7 +59,7 @@ void int_to_str_unsigned(unsigned int num, char* str, size_t buflen) {
 
 	// reverse the parts we wrote
 	char temp;
-	for (int i = 0; i <= (largestIndex / 2); i++) {
+	for (size_t i = 0; i <= (largestIndex / 2); i++) {
 		temp = str[largestIndex - i];
 		str[largestIndex - i] = str[i];
 		str[i] = temp;
