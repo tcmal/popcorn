@@ -1,5 +1,8 @@
 #include <kernel/paging.h>
 
+static uint32_t** page_directory;
+static uint32_t* kernel_page_table;
+
 const int PDE_DIRECT_4MIB = 1 << 7;
 // bit 6 is always 0
 const int PDE_ACCESSED = 1 << 5;
@@ -18,15 +21,16 @@ const int PTE_USER = 1 << 2;
 const int PTE_READ_WRITE = 1 << 1;
 
 void* getNextPage() {
-	static size_t nextPageBoundary = 0; // 4MiB in. This leaves us space for all our paging tables.
+	static size_t nextPageBoundary = 0x100000; // 4MiB in
 	nextPageBoundary += 4096; // add 4 KiB
 	return (void*) nextPageBoundary;
 }
 
-void pageDirectory_init(uint32_t* ptr) {
-	for (int i = 0; i < 1024; i++) {
-		ptr[i] = pageDirectoryEntry_new(0, false, 0);
-	}
+// initialisedPageDirectory is initialised in assembly as we first start,
+// So now we store its address properly so we can use it from C
+void setupPaging(uint32_t** initialisedPageDirectory) {
+	page_directory = initialisedPageDirectory;
+	kernel_page_table = page_directory[768] & 0xfffff000; // get rid of flag bits for raw address
 }
 
 uint32_t pageDirectoryEntry_new(uint32_t* addr, bool present, int flags) {
@@ -49,26 +53,19 @@ uint32_t pageTableEntry_new(void* addr, bool present, int flags) {
 	return (uint32_t) addr | flags | (present ? 1 : 0);
 }
 
-void setupPaging() {
-	// create a blank page directory
-	uint32_t* page_directory = (uint32_t*) getNextPage();
-	pageDirectory_init(page_directory);
+// void assign_area_to(uint32_t phys, uint32_t virt, size_t size) {
+// 	uint32_t page = phys / 0x1000;
+// 	uint32_t alloc = size + (phys - page);
+// 	while (true) {
+// 		// TODO: Actually allocate page
+// 		// setPageEntry(virt, pageTableEntry_new(page, true, PTE_READ_WRITE));
 
-	// create a page table
-	// our first table has to cover the first 4MiB, so we don't automatically get new pages.
-	uint32_t* page_table = (uint32_t*) getNextPage();
-	for (int i = 0; i < 1024; i++) {
-		page_table[i] = pageTableEntry_new((void*)(i * 0x1000), true, PDE_READ_WRITE);
-	}
+// 		if (alloc <= 0x1000) {
+// 			break;
+// 		}
 
-	// put the table in the directory
-	page_directory[0] = pageDirectoryEntry_new(page_table, true, PDE_READ_WRITE);
-
-	// set address of page table
-	asm("mov %0, %%cr3" : : "r" (page_directory));
-
-	// enable paging
-	asm("mov %cr0, %eax;"
-		"or $0x80000000, %eax;"
-		"mov %eax, %cr0;");
-}
+// 		alloc -= 0x1000;
+// 		page += 0x1000;
+// 		virt += 0x1000;
+// 	}
+// }

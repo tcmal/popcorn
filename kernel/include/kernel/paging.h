@@ -27,7 +27,6 @@ const int PTE_READ_WRITE;
 
 
 // Return a pointer for a 4KiB aligned page.
-// TODO: Unused guarantees, etc.
 void* getNextPage();
 
 // Make a new Page Directory, aka uint32_t[1024].
@@ -54,6 +53,6 @@ void pageTable_init_filled(uint32_t* ptr, int flags);
 uint32_t pageTableEntry_new(void* addr, bool present, int flags);
 
 // Perform initial paging setup.
-void setupPaging();
+void setupPaging(uint32_t**);
 
 #endif

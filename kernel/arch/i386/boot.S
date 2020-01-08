@@ -110,6 +110,9 @@ setup_done:
 	# Global constructors.
 	call _init
 
+	pushl %ebx
+	pushl $(boot_page_directory)
+	
 	# Main kernel
 	call kernel_main
 
