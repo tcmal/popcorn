@@ -1,5 +1,4 @@
-#ifndef _KERNEL_PAGING_H
-#define _KERNEL_PAGING_H
+#pragma once
 
 #include <stddef.h>
 #include <stdint.h>
@@ -25,34 +24,22 @@ const int PTE_WRITETHROUGH;
 const int PTE_USER;
 const int PTE_READ_WRITE;
 
-
-// Return a pointer for a 4KiB aligned page.
-void* getNextPage();
-
-// Make a new Page Directory, aka uint32_t[1024].
-// The pointer must be 4KiB aligned to make a valid PD.
-// Every entry will be 'not present'
-void pageDirectory_init_empty(uint32_t* ptr);
-
 // Create a new entry for a page directory with the given options.
-// addr must be 4KiB aligned.
-uint32_t pageDirectoryEntry_new(uint32_t* addr, bool present, int flags);
-
-// Make a new page table, aka uint32_t[1024].
-// The pointer must be 4KiB aligned to make a valid PT.
-// Every entry will be 'not present'
-void pageTable_init_hollow(uint32_t* ptr);
-
-// Make a new page table, aka uint32_t[1024].
-// The pointer must be 4KiB aligned to make a valid PT.
-// Every entry will be present with `flags`.
-void pageTable_init_filled(uint32_t* ptr, int flags);
+// addr must be 4KiB aligned, or 4MiB aligned if PDE_DIRECT_4MIB is set.
+uint32_t pde_new(void* addr, bool present, int flags);
 
 // Create a new entry for a page table with the given options
 // addr must be 4KiB aligned.
-uint32_t pageTableEntry_new(void* addr, bool present, int flags);
+uint32_t pte_new(void* addr, bool present, int flags);
+
+// Refreshes the page directory and page tables.
+void flush_pageInfo();
+
+// Clear/Initialise an area of memory for a pointer table.
+// The pointer must be 4KiB aligned to make a valid PT.
+// Every entry will be 'not present'
+void pt_clear(uint32_t* ptr);
 
 // Perform initial paging setup.
-void setupPaging(uint32_t**);
-
-#endif
+// By the end of this, we should be able to allocate any arbritary page.
+void preparePaging(uint32_t* initialisedPageDirectory);

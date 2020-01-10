@@ -85,6 +85,11 @@ kernel_mapped:
 	movl $(boot_page_directory - 0xC0000000), %ecx
 	movl %ecx, %cr3
 
+	# Enable PSE
+	mov %cr4, %ecx
+	orl $0x00000010, %ecx
+	mov %ecx, %cr4
+
 	# Enable paging and the write-protect bit.
 	movl %cr0, %ecx
 	orl $0x80010000, %ecx
