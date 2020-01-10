@@ -1,69 +1,61 @@
+#include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
 
-void int_to_str(int num, char* str, size_t buflen) {
+size_t int_to_str(int num, char* str, size_t buflen) {
+	int len = 0;
+
 	if (num < 0) {
 		num = -num;
-
 		str[0] = '-';
-		str = &str[1];
 		buflen--;
-	} else {
+		len++;
+	} else if (num == 0){
 		str[0] = '0';
+		str[1] = 0;
+		return 2;
 	}
 
-	size_t largestIndex = 0;
-	for (size_t exp = 0; exp < buflen - 1; exp++) {
+	for (int exp = buflen - 1; exp >= 0; exp--) {
 		int place = pow(10, exp);
 		if (place == -1) {
-			break;
+			continue;
 		}
+
 		if ((num / place) >= 1) {
 			int col = (num / place) % 10;
-			str[exp] = col + 48;
-			largestIndex = exp;
-		} else {
-			break;
+			str[len] = col + 48;
+			len++;
 		}
 	}
 
-	// reverse the parts we wrote
-	char temp;
-	for (size_t i = 0; i <= (largestIndex / 2); i++) {
-		temp = str[largestIndex - i];
-		str[largestIndex - i] = str[i];
-		str[i] = temp;
-	}
+	str[len++] = 0;
 
-	str[largestIndex + 1] = 0;
+	return len;
 }
 
-void int_to_str_unsigned(unsigned int num, char* str, size_t buflen) {
-	str[0] = '0';
+size_t int_to_str_unsigned(unsigned int num, char* str, size_t buflen) {
+	int len = 0;
 
-	size_t largestIndex = 0;
-	for (size_t exp = 0; exp < buflen - 1; exp++) {
+	if (num == 0) {
+		str[0] = '0';
+		str[1] = 0;
+		return 2;
+	}
+
+	for (int exp = buflen - 1; exp >= 0; exp--) {
 		int place = pow(10, exp);
 		if (place == -1) {
-			break;
+			continue;
 		}
 
 		if ((num / place) >= 1) {
 			int col = (num / place) % 10;
-			str[exp] = col + 48;
-			largestIndex = exp;
-		} else {
-			break;
+			str[len] = col + 48;
+			len++;
 		}
 	}
 
-	// reverse the parts we wrote
-	char temp;
-	for (size_t i = 0; i <= (largestIndex / 2); i++) {
-		temp = str[largestIndex - i];
-		str[largestIndex - i] = str[i];
-		str[i] = temp;
-	}
-
-	str[largestIndex + 1] = 0;
+	str[len++] = 0;
+	return len;
 }
