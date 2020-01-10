@@ -39,6 +39,7 @@ stdio/printf.o \
 stdio/putchar.o \
 stdio/puts.o \
 stdlib/abort.o \
+math/pow.o \
 string/memcmp.o \
 string/memcpy.o \
 string/memmove.o \

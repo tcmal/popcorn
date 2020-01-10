@@ -2,15 +2,11 @@
 
 #include <sys/cdefs.h>
 
-#define EOF (-1)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int printf(const char* __restrict, ...);
-int putchar(int);
-int puts(const char*);
+int pow(int base, int exp);
 
 #ifdef __cplusplus
 }

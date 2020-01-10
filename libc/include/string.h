@@ -1,5 +1,4 @@
-#ifndef _STRING_H
-#define _STRING_H 1
+#pragma once
 
 #include <sys/cdefs.h>
 
@@ -19,6 +18,4 @@ size_t int_to_str_unsigned(unsigned int num, char* str, size_t buflen);
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

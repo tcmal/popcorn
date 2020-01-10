@@ -6,6 +6,8 @@
 
 #include <kernel/tty.h>
 
+// Constants for this arch
+
 static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 static uint16_t* const VGA_MEMORY = (uint16_t*) 0xC03FF000; // This is where we've mapped it virtually
@@ -19,19 +21,6 @@ static uint16_t* terminal_buffer;
 uint16_t vga_entry(unsigned char uc, uint8_t color) 
 {
 	return (uint16_t) uc | (uint16_t) color << 8;
-}
-
-// TODO: Move this
-int pow(int sub, int exp) {
-	int acc = 1;
-	for (int i = 0; i < exp; i++) {
-		// overflow
-		if (sub > INT_MAX / acc) {
-			return -1;
-		}
-		acc = acc * sub;
-	}
-	return acc;
 }
 
 uint8_t tty_format(ttycolor_t fg, ttycolor_t bg) 
@@ -63,7 +52,7 @@ void tty_setFormat(uint8_t format) {
 	terminal_color = format;
 }
 
-void tty_charAt(unsigned char c, uint8_t color, size_t x, size_t y) {
+void tty_charAt(char c, uint8_t color, size_t x, size_t y) {
 	const size_t index = y * VGA_WIDTH + x;
 	terminal_buffer[index] = vga_entry(c, color);
 }

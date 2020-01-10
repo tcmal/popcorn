@@ -1,6 +1,7 @@
 #include <stdbool.h>
-#include <string.h>
+#include <stddef.h>
 #include <stdint.h>
+#include <math.h>
 
 size_t int_to_str(int num, char* str, size_t buflen) {
 	int len = 0;

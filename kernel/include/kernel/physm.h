@@ -1,5 +1,4 @@
-#ifndef _KERNEL_PHSM_H
-#define _KERNEL_PHSM_H
+#pragma once
 
 // Physical Memory Manager (Implementation agnostic header)
 // This can be used to allocate physical memory frames of 4KiB.
@@ -19,5 +18,3 @@ int physm_alloc_n(int n, void** dest);
 
 // Free the frame starting at start.
 int physm_free(void* start);
-
-#endif
