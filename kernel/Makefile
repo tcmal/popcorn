@@ -55,13 +55,13 @@ $(ARCHDIR)/crtn.o \
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: prix.kernel
+all: popcorn.kernel
 
 # Make the kernel
-prix.kernel: $(OBJS) $(ARCHDIR)/linker.ld
+popcorn.kernel: $(OBJS) $(ARCHDIR)/linker.ld
 	$(CC) -T $(ARCHDIR)/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
 # 	Verify is multiboot compatible
-	grub-file --is-x86-multiboot prix.kernel
+	grub-file --is-x86-multiboot popcorn.kernel
 
 $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -76,7 +76,7 @@ $(ARCHDIR)/crtbegin.o $(ARCHDIR)/crtend.o:
 
 # Clean
 clean:
-	rm -f prix.kernel
+	rm -f popcorn.kernel
 	rm -f $(OBJS) *.o */*.o */*/*.o
 	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
@@ -87,8 +87,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: prix.kernel
+install-kernel: popcorn.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp prix.kernel $(DESTDIR)$(BOOTDIR)
+	cp popcorn.kernel $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)
