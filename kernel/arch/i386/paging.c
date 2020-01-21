@@ -1,5 +1,6 @@
-#include <kernel/paging.h>
-#include <kernel/tty.h>
+
+#include "paging.h"
+
 #include <stdio.h>
 
 // Flags
@@ -20,11 +21,19 @@ const int PTE_WRITETHROUGH = 1 << 3;
 const int PTE_USER = 1 << 2;
 const int PTE_READ_WRITE = 1 << 1;
 
+// Ambiguous flags, for our case they are only transferred when written to a PDE.
+const int PAGE_ACCESSED = PTE_ACCESSED;
+const int PAGE_DISABLE_CACHE = PTE_DISABLE_CACHE;
+const int PAGE_WRITETHROUGH = PTE_WRITETHROUGH;
+const int PAGE_USER = PTE_USER;
+const int PAGE_READ_WRITE = PTE_READ_WRITE;
+
 // Static memory areas
 // Both of these are initialised immediately in boot.S
 // We set the addresses during preparePaging()
 static uint32_t* page_directory;
 static uint32_t* kernel_page_table;
+static uint32_t* pt_page_phys;
 
 // This is a single 4MiB page in which all the other page
 // tables are stored. This is mapped during preparePaging().
@@ -49,21 +58,33 @@ void* getNextPage() {
 	return (void*) nextPageBoundary;
 }
 
-void clearPageCache() {
+void pt_flush() {
 	asm("movl %cr3, %ecx");
 	asm("movl %ecx, %cr3");
 }
 
-void preparePaging(uint32_t* initialisedPageDirectory) {
+void preparePaging(void* initialisedPageDirectory) {
 
-	page_directory = initialisedPageDirectory;
+	page_directory = (uint32_t*) initialisedPageDirectory;
 	kernel_page_table = page_directory[768] & 0xfffff000; // get rid of flag bits for raw address
 
 	void* kernel_end_address_phys = kernel_end_address - 0xC0000000;
-	void* pt_page_phys = (((unsigned int)kernel_end_address_phys / 0x400000) + 1) * 0x400000;
+	pt_page_phys = (((unsigned int)kernel_end_address_phys / 0x400000) + 1) * 0x400000;
 	page_directory[767] = pde_new(pt_page_phys, true, PDE_DIRECT_4MIB | PDE_READ_WRITE);
 
-	clearPageCache();
+	pt_flush();
+}
+
+uint32_t* getPt(uint32_t index) {
+	return PT_PAGE + (index * 1024);
+}
+
+uint32_t* getPtPhys(uint32_t index) {
+	return pt_page_phys + (index * 1024);
+}
+
+uint32_t* getPdEntry(uint32_t index) {
+	return page_directory + index;
 }
 
 void pt_clear(uint32_t* ptr) {
@@ -72,19 +93,42 @@ void pt_clear(uint32_t* ptr) {
 	}
 }
 
-// void assign_area_to(uint32_t phys, uint32_t virt, size_t size) {
-// 	uint32_t page = phys / 0x1000;
-// 	uint32_t alloc = size + (phys - page);
-// 	while (true) {
-// 		// TODO: Actually allocate page
-// 		// setPageEntry(virt, pageTableEntry_new(page, true, PTE_READ_WRITE));
+int toPdeFlags(int flags) {
+	return flags & 0b111110;
+}
 
-// 		if (alloc <= 0x1000) {
-// 			break;
-// 		}
+int map_to_vmem(void* phys, void* virt, int size, int flags) {
+	int page = (int) virt / 0x1000;
+	int to_allocate = size + ((int) virt % 0x1000);
+	int allocated = 0;
+	phys = ((int) phys / 0x1000) * 0x1000;
 
-// 		alloc -= 0x1000;
-// 		page += 0x1000;
-// 		virt += 0x1000;
-// 	}
-// }
+	while (to_allocate >= 0) {
+		int pdIndex = page / 1024;
+		uint32_t* pde = getPdEntry(pdIndex);
+		uint32_t* pt = getPt(pdIndex);
+
+		if (*pde == 0) {
+			printf("\nstuff about pde");
+			printf("\n%u", getPtPhys(pdIndex));
+			// Set the PDE to point to the PT
+			*pde = pde_new(getPtPhys(pdIndex), true, toPdeFlags(flags));
+
+			pt_clear(pt);
+		}
+
+		if (pt[page % 1024] & 1 != 0) {
+			break;
+		}
+		pt[page % 1024] = pte_new(phys, true, flags);
+
+		to_allocate -= 0x1000;
+		allocated += 0x1000;
+		page += 1;
+		phys = phys + 0x1000;
+	}
+
+	pt_flush();
+
+	return allocated;
+}
