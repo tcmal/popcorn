@@ -22,4 +22,4 @@ void preparePaging(void* initialisedPageDirectory);
 // Returns the number of bytes allocated, which may not equal `size` and may be 0.
 // This stops allocating when it encounters an already allocated page
 // Flags uses the PAGE_* flags.
-int map_to_vmem(void* phys, void* virt, int size, int flags);
+int map_to_vmem(const void* phys, const void* virt, int size, int flags);

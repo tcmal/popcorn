@@ -18,7 +18,7 @@ export CFLAGS='-O2 -g'
 export CPPFLAGS=''
 
 # Include our crosscompiler
-export CROSS_PREFIX="$(pwd)/../cross"
+export CROSS_PREFIX="$(pwd)/prefix"
 export PATH="$PATH:$CROSS_PREFIX/bin/"
 
 # Configure the cross-compiler to use the desired system root.

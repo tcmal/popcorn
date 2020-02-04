@@ -27,11 +27,11 @@ const int PTE_READ_WRITE;
 
 // Create a new entry for a page directory with the given options.
 // addr must be 4KiB aligned, or 4MiB aligned if PDE_DIRECT_4MIB is set.
-uint32_t pde_new(void* addr, bool present, int flags);
+uint32_t pde_new(const void* addr, bool present, int flags);
 
 // Create a new entry for a page table with the given options
 // addr must be 4KiB aligned.
-uint32_t pte_new(void* addr, bool present, int flags);
+uint32_t pte_new(const void* addr, bool present, int flags);
 
 // Get a pointer to the start of the page table `index`
 // Returns a uint32_t[1024]. This will fall within the PT page.

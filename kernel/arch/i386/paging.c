@@ -37,18 +37,18 @@ static uint32_t* pt_page_phys;
 
 // This is a single 4MiB page in which all the other page
 // tables are stored. This is mapped during preparePaging().
-const uint32_t* PT_PAGE = (uint32_t*) 0xbfc00000;
+uint32_t* const PT_PAGE = (uint32_t*) 0xbfc00000;
 
 // The virtual address of the end of the kernel. This is used
 // to figure out where to start mapping from.
 extern int _kernel_end;
 unsigned int kernel_end_address = (unsigned int) &_kernel_end;
 
-uint32_t pde_new(void* addr, bool present, int flags) {
+uint32_t pde_new(const void* addr, bool present, int flags) {
 	return (uint32_t) addr | flags | (present ? 1 : 0);
 }
 
-uint32_t pte_new(void* addr, bool present, int flags) {
+uint32_t pte_new(const void* addr, bool present, int flags) {
 	return (uint32_t) addr | flags | (present ? 1 : 0);
 }
 
@@ -66,10 +66,11 @@ void pt_flush() {
 void preparePaging(void* initialisedPageDirectory) {
 
 	page_directory = (uint32_t*) initialisedPageDirectory;
-	kernel_page_table = page_directory[768] & 0xfffff000; // get rid of flag bits for raw address
+	kernel_page_table = (uint32_t*) (page_directory[768] & 0xfffff000); // get rid of flag bits for raw address
 
-	void* kernel_end_address_phys = kernel_end_address - 0xC0000000;
-	pt_page_phys = (((unsigned int)kernel_end_address_phys / 0x400000) + 1) * 0x400000;
+	void* kernel_end_address_phys = (void*) (kernel_end_address - 0xC0000000);
+	pt_page_phys = (uint32_t*) (((unsigned int) kernel_end_address_phys / 0x400000 + 1) * 0x400000);
+
 	page_directory[767] = pde_new(pt_page_phys, true, PDE_DIRECT_4MIB | PDE_READ_WRITE);
 
 	pt_flush();
@@ -97,11 +98,11 @@ int toPdeFlags(int flags) {
 	return flags & 0b111110;
 }
 
-int map_to_vmem(void* phys, void* virt, int size, int flags) {
+int map_to_vmem(const void* phys, const void* virt, int size, int flags) {
 	int page = (int) virt / 0x1000;
 	int to_allocate = size + ((int) virt % 0x1000);
 	int allocated = 0;
-	phys = ((int) phys / 0x1000) * 0x1000;
+	phys = (void*) ((unsigned int) phys & 0xfffff000);
 
 	while (to_allocate >= 0) {
 		int pdIndex = page / 1024;
@@ -109,15 +110,13 @@ int map_to_vmem(void* phys, void* virt, int size, int flags) {
 		uint32_t* pt = getPt(pdIndex);
 
 		if (*pde == 0) {
-			printf("\nstuff about pde");
-			printf("\n%u", getPtPhys(pdIndex));
 			// Set the PDE to point to the PT
 			*pde = pde_new(getPtPhys(pdIndex), true, toPdeFlags(flags));
 
 			pt_clear(pt);
 		}
 
-		if (pt[page % 1024] & 1 != 0) {
+		if ((pt[page % 1024] & 1) != 0) {
 			break;
 		}
 		pt[page % 1024] = pte_new(phys, true, flags);
