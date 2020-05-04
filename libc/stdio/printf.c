@@ -13,10 +13,18 @@ static bool print(const char* data, size_t length) {
 }
 
 int printf(const char* restrict formatStr, ...) {
-	// Initialise dynamic argument getting
 	va_list vaparams;
 	va_start(vaparams, formatStr);
 
+	int ret = vaprintf(formatStr, vaparams);
+
+	va_end(vaparams);
+
+	return ret;
+}
+
+int vaprintf(const char* restrict formatStr, va_list vaparams) {
+	// Initialise dynamic argument getting
 	int written = 0;
 
 	// Read until done with string
@@ -137,6 +145,5 @@ int printf(const char* restrict formatStr, ...) {
 		}
 	}
 
-	va_end(vaparams);
 	return written;
 }

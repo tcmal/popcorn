@@ -17,4 +17,4 @@ void* physm_alloc();
 int physm_alloc_n(int n, void** dest);
 
 // Free the frame starting at start.
-int physm_free(void* start);
+void physm_free(void* start);

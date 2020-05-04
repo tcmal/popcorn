@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sys/cdefs.h>
+#include <stdarg.h>
 
 #define EOF (-1)
 
@@ -9,6 +10,7 @@ extern "C" {
 #endif
 
 int printf(const char* __restrict, ...);
+int vaprintf(const char* __restrict, va_list params);
 int putchar(int);
 int puts(const char*);
 

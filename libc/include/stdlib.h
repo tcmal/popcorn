@@ -9,6 +9,12 @@ extern "C" {
 __attribute__((__noreturn__))
 void abort(void);
 
+#if defined(__is_libk)
+
+__attribute__((__noreturn__))
+void kpanic(const char* restrict fmt, ...);
+#endif
+
 #ifdef __cplusplus
 }
 #endif
