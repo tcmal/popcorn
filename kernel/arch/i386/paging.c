@@ -103,8 +103,8 @@ int map_to_vmem(const void* phys, const void* virt, int size, int flags) {
 	int to_allocate = size + ((int) virt % 0x1000);
 	int allocated = 0;
 	phys = (void*) ((unsigned int) phys & 0xfffff000);
-
-	while (to_allocate >= 0) {
+	
+	while (to_allocate > 0) {
 		int pdIndex = page / 1024;
 		uint32_t* pde = getPdEntry(pdIndex);
 		uint32_t* pt = getPt(pdIndex);
