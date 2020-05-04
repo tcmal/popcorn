@@ -4,3 +4,5 @@
 #define __prix_libc 1
 
 #endif
+
+#define uint unsigned int
