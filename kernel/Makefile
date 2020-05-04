@@ -86,6 +86,7 @@ install: install-headers install-kernel
 install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
+	cp -R --preserve=timestamps $(KERNEL_ARCH_LIBS) $(DESTDIR)$(INCLUDEDIR)/.
 
 install-kernel: popcorn.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
